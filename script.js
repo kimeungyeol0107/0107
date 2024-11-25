@@ -19,9 +19,10 @@ const levels = [
 function createButton(color) {
     const button = document.createElement('button');
     button.style.backgroundColor = color;
+    button.style.position = 'absolute';
     button.style.left = `${Math.random() * 320}px`;
     button.style.top = `${Math.random() * 350}px`;
-    button.textContent = color === 'red' ? 'Click!' : '';
+    button.textContent = '클릭!';
     button.onclick = handleSuccess;
     buttonContainer.appendChild(button);
     return button;
