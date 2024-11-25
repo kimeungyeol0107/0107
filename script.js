@@ -5,6 +5,7 @@ const instruction = document.getElementById('instruction');
 
 let currentLevel = 1;
 let timeout;
+let countdownInterval;
 
 const levels = [
     { timeLimit: 4000, colors: ['red'] },
@@ -29,7 +30,9 @@ function createButton(color) {
 function startGame() {
     currentLevel = 1;
     startBtn.style.display = 'none';
-    nextLevel();
+    result.textContent = '';
+    instruction.textContent = '게임이 시작됩니다!';
+    setTimeout(() => nextLevel(), 1000); // 1초 후 첫 라운드 시작
 }
 
 function nextLevel() {
@@ -40,18 +43,33 @@ function nextLevel() {
     }
 
     const { timeLimit, colors } = levels[currentLevel - 1];
-    instruction.textContent = `단계 ${currentLevel}: ${timeLimit / 1000}초 안에 버튼 클릭!`;
+    startCountdown(3, () => {
+        instruction.textContent = `단계 ${currentLevel}: ${timeLimit / 1000}초 안에 버튼 클릭!`;
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        const button = createButton(randomColor);
 
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    const button = createButton(randomColor);
+        button.style.display = 'block';
 
-    button.style.display = 'block';
+        timeout = setTimeout(() => {
+            button.style.display = 'none';
+            result.textContent = `실패했습니다! 단계 ${currentLevel}에서 게임 종료!`;
+            startBtn.style.display = 'block';
+        }, timeLimit);
+    });
+}
 
-    timeout = setTimeout(() => {
-        button.style.display = 'none';
-        result.textContent = `실패했습니다! 단계 ${currentLevel}에서 게임 종료!`;
-        startBtn.style.display = 'block';
-    }, timeLimit);
+function startCountdown(seconds, callback) {
+    let count = seconds;
+    instruction.textContent = `다음 라운드 시작까지 ${count}초 남음...`;
+    countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            instruction.textContent = `다음 라운드 시작까지 ${count}초 남음...`;
+        } else {
+            clearInterval(countdownInterval);
+            callback();
+        }
+    }, 1000);
 }
 
 function handleSuccess() {
@@ -59,7 +77,7 @@ function handleSuccess() {
     result.textContent = `단계 ${currentLevel} 성공!`;
     currentLevel++;
     buttonContainer.innerHTML = '';
-    setTimeout(nextLevel, 1000);
+    setTimeout(nextLevel, 1000); // 성공 후 1초 대기
 }
 
 startBtn.addEventListener('click', startGame);
